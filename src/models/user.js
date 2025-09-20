@@ -23,7 +23,14 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  //Add more schema proeprties of your own here
+  userAccounts: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Account",
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Middleware function executed before saving the user
