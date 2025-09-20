@@ -12,7 +12,7 @@ const createUser = async (name, email, password) => {
 
 const findUserByEmail = async (email) => {
   try {
-    return await User.findOne({ email })
+    return await User.findOne({ email }).populate("userAccounts");
   } catch (error) {
     throw error;
   }

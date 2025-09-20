@@ -1,9 +1,10 @@
 const { newAccessToken } = require("../utils/jwt");
 const userService = require("../services/userService");
+const accountService = require("../services/accountService");
 const { StatusCodes } = require("http-status-codes");
 
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, account, password } = req.body;
   try {
     const existingUser = await userService.findUserByEmail(email);
 
@@ -14,6 +15,12 @@ const registerUser = async (req, res) => {
     }
 
     const user = await userService.createUser(name, email, password);
+
+    const newAccount = await accountService.createAccount(user._id, account);
+
+    await userService.updateUserById(user._id, {
+      userAccounts: [newAccount._id],
+    });
 
     const token = newAccessToken(user._id);
 
@@ -37,6 +44,12 @@ const loginUser = async (req, res) => {
       return res.status(StatusCodes.UNAUTHORIZED).send({
         message: "Invalid email or password",
       });
+
+    if (!existingUser.isEmailVerified) {
+      return res.status(StatusCodes.UNAUTHORIZED).send({
+        message: "Email not verified",
+      });
+    }
 
     const token = newAccessToken(existingUser._id);
 
